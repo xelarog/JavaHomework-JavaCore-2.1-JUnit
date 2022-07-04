@@ -1,8 +1,11 @@
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 
 public class PhoneBookTest {
     @Test
@@ -13,11 +16,12 @@ public class PhoneBookTest {
         var groupName2 = "Семья";
         var groupName3 = "Друзья";
 
-        Assertions.assertNotNull(phoneBook);
+        assertThat(phoneBook, notNullValue());
 
-        Assertions.assertTrue(phoneBook.createGroupContacts(groupName1));
-        Assertions.assertTrue(phoneBook.createGroupContacts(groupName2));
-        Assertions.assertFalse(phoneBook.createGroupContacts(groupName3));
+        assertThat(phoneBook.createGroupContacts(groupName1), is(true));
+        assertThat(phoneBook.createGroupContacts(groupName2), is(true));
+        assertThat(phoneBook.createGroupContacts(groupName3), is(false));
+
     }
 
     @Test
@@ -31,14 +35,13 @@ public class PhoneBookTest {
         var contact1 = new Contact("Коля", "11111");
         var contact2 = new Contact("Петя", "22222");
 
-        Assertions.assertNotNull(phoneBook);
+        assertThat(phoneBook, notNullValue());
 
-        Assertions.assertTrue(phoneBook.addContactToGroup(groupName1, contact1));
-        Assertions.assertTrue(phoneBook.addContactToGroup(groupName2, contact2));
-        Assertions.assertTrue(phoneBook.addContactToGroup(groupName3, contact2));
+        assertThat(phoneBook.addContactToGroup(groupName1, contact1), is(true));
+        assertThat(phoneBook.addContactToGroup(groupName2, contact2), is(true));
+        assertThat(phoneBook.addContactToGroup(groupName3, contact2), is(true));
 
-        Assertions.assertFalse(phoneBook.addContactToGroup(groupName2, contact2));
-
+        assertThat(phoneBook.addContactToGroup(groupName2, contact2), is(false));
     }
 
     @Test
@@ -54,17 +57,16 @@ public class PhoneBookTest {
         var expect1 = new ArrayList<Contact>();
         expect1.add(contact1);
         expect1.add(contact2);
-        phoneBook.addContactToGroup(groupName1,contact1);
-        phoneBook.addContactToGroup(groupName1,contact2);
-        phoneBook.addContactToGroup(groupName2,contact1);
+        phoneBook.addContactToGroup(groupName1, contact1);
+        phoneBook.addContactToGroup(groupName1, contact2);
+        phoneBook.addContactToGroup(groupName2, contact1);
 
         var result1 = phoneBook.getContactsByGroup(groupName1);
 
-        Assertions.assertNotNull(phoneBook);
-        Assertions.assertNotNull(result1);
-        Assertions.assertEquals(expect1, result1);
-
-
+        assertThat(phoneBook, notNullValue());
+        assertThat(result1, notNullValue());
+        assertThat(result1, hasItems(contact1, contact2));
+        assertThat(result1, equalTo(expect1));
     }
 
     @Test
@@ -77,9 +79,8 @@ public class PhoneBookTest {
         var contact1 = new Contact("Коля", "11111");
         var contact2 = new Contact("Петя", "22222");
 
-
-        phoneBook.addContactToGroup(groupName1,contact1);
-        phoneBook.addContactToGroup(groupName1,contact2);
+        phoneBook.addContactToGroup(groupName1, contact1);
+        phoneBook.addContactToGroup(groupName1, contact2);
 
         var phoneNumber1 = "22222";
         var expect1 = contact2.getName();
@@ -89,12 +90,61 @@ public class PhoneBookTest {
         var expect2 = "Контакта с таким номером не существует";
         var result2 = phoneBook.getContactByPhoneNumber(phoneNumber2);
 
-        Assertions.assertNotNull(phoneBook);
-        Assertions.assertNotNull(result1);
-        Assertions.assertEquals(expect1, result1);
+        assertThat(phoneBook, notNullValue());
+        assertThat(result1, notNullValue());
+        assertThat(result1, equalTo(expect1));
 
-        Assertions.assertNotNull(result2);
-        Assertions.assertEquals(expect2, result2);
+        assertThat(result2, notNullValue());
+        assertThat(result2, equalTo(expect2));
+
     }
 
+    @Test
+    @DisplayName("Тест класса Contact")
+    public void newTestHamcrestContactClass() {
+
+        var contact1 = new Contact("Коля", "11111");
+        var contact2 = new Contact("Петя", "22222");
+
+        assertThat(contact1.getName(), not(isEmptyString()));
+        assertThat(contact1.getPhoneNumber(), notNullValue());
+
+        assertThat(contact1, instanceOf(Contact.class));
+
+        assertThat(contact1, hasProperty("name"));
+        assertThat(contact1, hasProperty("phoneNumber"));
+
+        assertThat(contact2, hasProperty("name", equalTo("Петя")));
+        assertThat(contact2, hasProperty("phoneNumber", equalTo("22222")));
+
+        assertThat(contact1, hasToString("Коля - 11111"));
+
+    }
+
+    @Test
+    @DisplayName("Тест PhoneBook класса")
+    public void newTestHamcrestPhoneBookClass() {
+
+        var phoneBook = new PhoneBook();
+        var groupName1 = "Друзья";
+        var groupName2 = "Семья";
+
+        var contact1 = new Contact("Коля", "11111");
+        var contact2 = new Contact("Петя", "22222");
+
+        var list = new ArrayList<Contact>();
+        list.add(contact1);
+        list.add(contact2);
+
+        phoneBook.addContactToGroup(groupName1, contact1);
+        phoneBook.addContactToGroup(groupName1, contact2);
+        phoneBook.addContactToGroup(groupName2, contact1);
+
+        assertThat(phoneBook.getContacts(), notNullValue());
+        assertThat(phoneBook.getContactsByGroup(groupName1), hasSize(2));
+        assertThat(phoneBook.getContacts(), hasKey(groupName1));
+        assertThat(phoneBook.getContacts(), hasValue(list));
+        assertThat(phoneBook.getContacts(), hasEntry(groupName1, list));
+
+    }
 }

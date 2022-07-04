@@ -48,4 +48,8 @@ public class PhoneBook {
         }
         return "Контакта с таким номером не существует";
     }
+
+    public Map<String, List<Contact>> getContacts() {
+        return contacts;
+    }
 }
